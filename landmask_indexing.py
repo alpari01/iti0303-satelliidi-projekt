@@ -1,5 +1,7 @@
 import csv
 import time
+import numpy
+import read_geotiff
 
 
 def read_csv(filename):
@@ -39,17 +41,22 @@ def get_indices(data, max_square, min_square, filling=0.999, prev_row_start=0, p
 
 
 if __name__ == '__main__':
-    landmask_filename = 'sigma_cro/error_and_landmask.csv'
+    tif_file = r'tiff/s1b-ew-grd-hh-20191106t160337-20191106t160441-018809-023761-001.tiff'
+    shapefile = r'tiff/gshhg-shp-2.3.7/GSHHS_shp/f/GSHHS_f_L1.shp'
 
     print('Program started...')
 
-    landmask = read_csv(landmask_filename)
-    print('...successfully read landmask csv...')
+    landmask = read_geotiff.get_landmask_and_error(tif_file, shapefile)
+    landmask = numpy.array(landmask).tolist()
+    print('...successfully received landmask...')
 
     start_time = time.time()
     indices = []
     get_indices(landmask, 512, 32)
+    # indices.sort(key=lambda x: (x[1][0] - x[0][0] + 1) * (x[1][1] - x[0][1] + 1))
     print('...successfully found indices...')
     end_time = time.time()
 
     print(f'...algorithm execution time {round(end_time - start_time, 2)} sec.')
+
+    print(indices)

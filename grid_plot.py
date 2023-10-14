@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import csv
+import read_geotiff
 
 
 def read_csv(filename):
@@ -66,25 +67,27 @@ def transfer_indices(from_where, to_where):
 
 
 if __name__ == '__main__':
-    landmask_filename = 'sigma_cro/error_and_landmask.csv'
-    sigma_cro_filename = 'sigma_cro/sigma_cro.csv'
+    tif_file = r'tiff/s1b-ew-grd-hh-20191106t160337-20191106t160441-018809-023761-001.tiff'
+    shapefile = r'tiff/gshhg-shp-2.3.7/GSHHS_shp/f/GSHHS_f_L1.shp'
 
     print('Program started...')
 
-    landmask = read_csv(landmask_filename)
-    print('...successfully read landmask csv...')
+    landmask = read_geotiff.get_landmask_and_error(tif_file, shapefile)
+    landmask = np.array(landmask).tolist()
+    print('...successfully received landmask...')
 
-    sigma_cro = read_csv(sigma_cro_filename)
-    print('...successfully read sigma_cro csv...')
+    raster_band = read_geotiff.get_raster_band(tif_file)
+    raster_band = np.array(raster_band).tolist()
+    print('...successfully received raster_band...')
 
     square_indices = []
     draw_grid(landmask, 512, 32)
     print('...successfully drawn grid...')
 
-    result_data = transfer_indices(landmask, sigma_cro)
+    result_data = transfer_indices(landmask, raster_band)
     print('...successfully transferred indices...')
 
     sns.heatmap(result_data, cmap='grey', vmin=0, vmax=3000)
-    plt.savefig('plot.png', dpi=3000)
+    plt.savefig('plot.png', dpi=250)
     plt.show()
     print('...successfully created plot.')
