@@ -1,17 +1,6 @@
-import csv
+import read_geotiff
 import time
 import numpy
-import read_geotiff
-
-
-def read_csv(filename):
-    result_list = []
-    with open(filename, 'r', newline='') as f:
-        csvreader = csv.reader(f)
-        for row in csvreader:
-            int_row = [int(cell) for cell in row]
-            result_list.append(int_row)
-    return result_list
 
 
 def get_indices(data, max_square, min_square, filling=0.999, prev_row_start=0, prev_col_start=0):
@@ -26,9 +15,7 @@ def get_indices(data, max_square, min_square, filling=0.999, prev_row_start=0, p
             for i in range(row_start, row_start + max_square):
                 sub_list.append(data[i][col_start:col_start + max_square])
 
-            amount = 0
-            for line in sub_list:
-                amount += line.count(1)
+            amount = sum(line.count(1) for line in sub_list)
 
             if amount > (max_square * max_square * filling):
                 top_left = (row_start + prev_row_start, col_start + prev_col_start)
@@ -58,5 +45,3 @@ if __name__ == '__main__':
     end_time = time.time()
 
     print(f'...algorithm execution time {round(end_time - start_time, 2)} sec.')
-
-    print(indices)
