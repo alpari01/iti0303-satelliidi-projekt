@@ -5,6 +5,7 @@ import numpy as np
 
 
 def draw_grid(data, max_square, min_square, filling=0.999, prev_row_start=0, prev_col_start=0):
+    """Divides the landmask into a grid and marks squares that meet a specified land coverage threshold."""
     height = len(data)
     width = len(data[0])
     if max_square < min_square:
@@ -44,6 +45,7 @@ def draw_grid(data, max_square, min_square, filling=0.999, prev_row_start=0, pre
 
 
 def transfer_indices(from_where, to_where):
+    """Transfers the marked indices from the landmask to the raster band for visualization."""
     from_where_array = np.array(from_where, dtype=float)
     to_where_array = np.array(to_where, dtype=float)
 

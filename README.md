@@ -2,38 +2,54 @@
 
 
 ## Description
-This repository contains a Python script for a landmask indexing algorithm that processes a CSV file containing binary data (0s and 1s) to identify regions with a specified fill ratio of 1s. The algorithm recursively subdivides the input data into smaller squares until it finds regions that meet the specified criteria.
+This repository contains a set of Python scripts for geospatial data processing, specifically designed for working with GeoTIFF files. The code allows you to analyze, manipulate, and visualize geospatial data with a focus on landmask extraction, indexing, and grid plotting.
 
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
-- [Algorithm Overview](#algorithm-overview)
+- [Customization](#customization)
 
 
 ## Prerequisites
-- Python 3.x
-- `csv` library
+- [Python](https://www.python.org/): This project is written in Python 3.7+.
+- [GDAL](https://gdal.org/): The Geospatial Data Abstraction Library is used to handle GeoTIFF files.
+- [Matplotlib](https://matplotlib.org/): This library is used for creating visualizations.
+- [Seaborn](https://seaborn.pydata.org/): Seaborn complements Matplotlib for creating attractive statistical graphics.
+- [NumPy](https://numpy.org/): NumPy is used for efficient numerical operations.
 
 
 ## Getting Started
-1. Clone this repository to your local machine or download the `landmask_indexing.py` file.
-2. Ensure you have the required prerequisites installed.
-3. Prepare your landmask data in a CSV file. The landmask should consist of binary values (0 for land and 1 for non-land) in a grid format.
+1. Clone the repository to your local machine. 
+```
+git clone https://github.com/alpari01/iti0303-satelliidi-projekt.git
+```
+2. Install the required dependencies. You can use pip to install the necessary packages.
+```
+pip install gdal numpy matplotlib seaborn
+```
+3. Ensure you have GDAL installed on your system. You can install it using system-specific package managers or download it from the official GDAL website.
 
 
 ## Usage
-1. Modify the `landmask_filename` variable in the `landmask_indexing.py` script to specify the path to your CSV file containing the landmask data.
-2. Run the script by executing the following command in your terminal:
-3. The script will process the landmask data, and it will print out the execution time and the identified indices (regions) that meet the specified fill ratio criteria.
+### `read_geotiff.py`
+The `read_geotiff.py` script provides functions for working with GeoTIFF files. It includes the following functions:
+- `get_landmask_and_error()`: Extracts a landmask from a GeoTIFF file based on a provided shapefile and returns it.
+- `get_raster_band()`: Reads a raster band from a GeoTIFF file and returns it as a NumPy array.
 
+### `landmask_indexing.py`
+The `landmask_indexing.py` script is designed for landmask indexing. It includes the following function:
+- `get_indices()`: Generates indices for landmask squares of a specified size and fills a list with square coordinates. The result is a list of top-left and bottom-right coordinates for landmask squares.
 
-## Algorithm Overview
+### `grid_plot.py`
+The `grid_plot.py` script is responsible for creating visual representations of the landmask squares on top of GeoTIFF images. It includes the following functions:
+- `draw_grid()`: Draws landmask squares on the input data, providing a visual representation of the indexed squares.
+- `transfer_indices()`: Transfers indices from the landmask to a target dataset, allowing for visual representation and analysis.
 
-The `get_indices` function in the script implements a recursive algorithm to find regions in the landmask data with a specified fill ratio of 1s. Here's an overview of the algorithm:
+## Customization
 
-1. Read the CSV file containing the landmask data.
-2. Initialize the starting parameters for the algorithm, including the maximum square size (`max_square`), minimum square size (`min_square`), and filling ratio (`filling`).
-3. The algorithm starts with the entire landmask data and iteratively subdivides it into smaller squares until it finds regions that contain a proportion of 1s greater than or equal to the specified filling ratio.
-4. The identified regions are stored in the `indices` list as pairs of top-left and bottom-right coordinates.
+In `landmask_indexing.py` and `grid_plot.py`, you can customize the following parameters:
+  - `max_square`: Set the maximum square size for indexing.
+  - `min_square`: Set the minimum square size for indexing.
+  - `filling`: Control the filling criteria for indexing the landmask.
