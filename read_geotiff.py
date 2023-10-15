@@ -5,6 +5,7 @@ import subprocess
 
 
 def get_landmask_and_error(filein, shapefile):
+    """Generates landmask and error binary map by rasterizing the shapefile on the GeoTIFF file."""
     path, filename = os.path.split(filein)
     product_name = filename[:-5]
 
@@ -24,6 +25,7 @@ def get_landmask_and_error(filein, shapefile):
 
 
 def get_raster_band(filein):
+    """Reads a GeoTIFF file and returns the raster band as a NumPy array."""
     raster = gdal.Open(filein)
     raster_band = raster.GetRasterBand(1).ReadAsArray()
     return raster_band

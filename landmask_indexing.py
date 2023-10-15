@@ -4,6 +4,8 @@ import numpy
 
 
 def get_indices(data, max_square, min_square, filling=0.999, prev_row_start=0, prev_col_start=0):
+    """Takes a landmask binary map and recursively divides it into smaller squares,
+     identifying the indices of areas that meet a specified threshold of land coverage."""
     height = len(data)
     width = len(data[0])
     if max_square < min_square:
