@@ -1,18 +1,7 @@
+import read_geotiff
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-import csv
-import read_geotiff
-
-
-def read_csv(filename):
-    result_list = []
-    with open(filename, 'r', newline='') as f:
-        csvreader = csv.reader(f)
-        for row in csvreader:
-            int_row = [int(cell) for cell in row]
-            result_list.append(int_row)
-    return result_list
 
 
 def draw_grid(data, max_square, min_square, filling=0.999, prev_row_start=0, prev_col_start=0):
@@ -28,9 +17,7 @@ def draw_grid(data, max_square, min_square, filling=0.999, prev_row_start=0, pre
             for i in range(row_start, row_start + max_square):
                 sub_list.append(data[i][col_start:col_start + max_square])
 
-            amount = 0
-            for line in sub_list:
-                amount += line.count(1)
+            amount = sum(line.count(1) for line in sub_list)
 
             if amount > (max_square * max_square * filling):
                 matrix = np.array(sub_list, dtype=float)
@@ -87,7 +74,9 @@ if __name__ == '__main__':
     result_data = transfer_indices(landmask, raster_band)
     print('...successfully transferred indices...')
 
-    sns.heatmap(result_data, cmap='grey', vmin=0, vmax=3000)
-    plt.savefig('plot.png', dpi=250)
+    aspect_ratio = result_data.shape[1] / result_data.shape[0]
+    fig = plt.figure(figsize=(6 * aspect_ratio, 6))
+    sns.heatmap(result_data, cmap='gray', vmin=0, vmax=3000, cbar=False)
+    plt.savefig('plot.png', dpi=3000)
     plt.show()
     print('...successfully created plot.')
