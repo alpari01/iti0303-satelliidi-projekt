@@ -29,8 +29,14 @@ git clone https://github.com/alpari01/iti0303-satelliidi-projekt.git
 ```
 pip install gdal numpy matplotlib seaborn
 ```
-3. Ensure you have GDAL installed on your system. You can install it using system-specific package managers or download it from the official GDAL website.
 
+### Troubleshooting GDAL installation
+1) Go to https://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal and download `.whl` file that is compatible with your operating system and python version.
+
+2) Use this command to install directly from `.whl` file instead.
+```
+pip install /path/to/downloaded_file
+```
 
 ## Usage
 ### `read_geotiff.py`
