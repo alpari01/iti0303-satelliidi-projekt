@@ -134,7 +134,7 @@ class TifModel:
             keras.layers.Dense(6, activation='softmax')
         ])
         model.compile(optimizer='adam',
-                      loss='mse',
+                      loss='categorical_crossentropy',
                       metrics=['accuracy'])
         self.model = model
         print("Successfully built model")
