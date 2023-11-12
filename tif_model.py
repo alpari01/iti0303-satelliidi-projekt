@@ -114,47 +114,35 @@ class TifModel:
         self.model = None
         self.root_path = None
 
-    def set_root_path(self, root_path: str) -> None:
-        self.root_path = root_path
-        print(f"Updated root path: {self.get_root_path()}")
-
-    def get_root_path(self) -> str:
-        return self.root_path
-
-    def get_dataset_info(self) -> str:
-        return f"features size is: {len(self.features)}, labels size is: {len(self.labels)}"
-
     def build_dataset(self, square_size: int = 64, max_image_size: int = 40, dataset_size: int = 10):
         print(f"\nBuilding dataset with parameters: square size: {square_size}px, max image size: {max_image_size}MB, dataset size: {dataset_size}")
         self.features, self.labels = get_data(self.root_path, square_size, max_image_size, dataset_size)
+        self.labels = keras.utils.to_categorical(self.labels, num_classes=6)
         print("Successfully built dataset")
-        print(self.get_dataset_info())
+        print(f"Features size is: {len(self.features)}, labels size is: {len(self.labels)}")
 
-    def get_summary(self) -> str:
-        return self.model.summary()
-
-    def build_model(self) -> None:
+    def model_build(self) -> None:
         print("\nBuilding CNN model...")
-        model_1 = Sequential()
-        model_1.add(Conv2D(32, (3, 3), padding='same', activation='relu', input_shape=(64, 64, 3)))
-        model_1.add(MaxPool2D((2, 2)))
-        model_1.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
-        model_1.add(MaxPool2D((2, 2)))
-        model_1.add(Conv2D(128, (3, 3), padding='same', activation='relu'))
-        model_1.add(Flatten())
-        model_1.add(Dense(128, activation='relu'))
-        model_1.add(Dense(6, activation='softmax'))
-        model_1.compile(optimizer='adam',
-                        loss='categorical_crossentropy',
-                        metrics=['accuracy'])
-        self.model = model_1
+        model = keras.Sequential([
+            keras.layers.Conv2D(16, (3, 3), activation='relu', input_shape=(64, 64, 3)),
+            keras.layers.MaxPooling2D((2, 2)),
+            keras.layers.Conv2D(32, (3, 3), activation='relu'),
+            keras.layers.MaxPooling2D((2, 2)),
+            keras.layers.Conv2D(8, (3, 3), activation='relu'),
+            keras.layers.Flatten(),
+            keras.layers.Dense(8, activation='relu'),
+            keras.layers.Dense(6, activation='linear')
+        ])
+        model.compile(optimizer='adam',
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+        self.model = model
         print("Successfully built model")
-        print(self.get_summary())
+        print(self.model.summary())
 
     def model_fit(self) -> None:
         print("\nSplitting dataset into training, testing and validation...")
-        X_train, X_temp, y_train, y_temp = train_test_split(self.features, self.labels, test_size=0.2,
-                                                            random_state=42)
+        X_train, X_temp, y_train, y_temp = train_test_split(self.features, self.labels, test_size=0.2, random_state=42)
         X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
         X_train = tf.transpose(X_train, perm=[0, 2, 3, 1])
         X_test = tf.transpose(X_test, perm=[0, 2, 3, 1])
@@ -163,9 +151,9 @@ class TifModel:
         print(f'test size={len(X_train)}')
         print(f'train size={len(X_test)}')
         print(f'val size={len(X_val)}')
-        self.model.fit(X_train, keras.utils.to_categorical(y_train),
+        self.model.fit(X_train, y_train,
                        epochs=20, batch_size=64,
-                       validation_data=(X_test, keras.utils.to_categorical(y_test)))
+                       validation_data=(X_test, y_test))
 
     def predict_value(self, image_path: str, square_size: int = 64) -> str:
         hs_classes_dict = {0: "0-0.5m", 1: "0.51-1m", 2: "1.01-1.5m", 3: "1.51-2m", 4: "2.01-2.5m", 5: "2.51+m"}
