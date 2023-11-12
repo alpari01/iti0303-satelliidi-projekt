@@ -97,7 +97,7 @@ def get_data(root_path: str, square_size: int, max_image_size: int, dataset_size
                     read_image(root_path + '/tif_images/' + station_folder + '/' + image_path, square_size)[0])
                 measurements.append(find_hs_class(find_hs_measurement(image_path, root_path)))
 
-                print(len(images), len(measurements), image_size)
+                print(len(images), len(measurements), round(image_size, 2), station_folder)
 
                 if len(images) == dataset_size:
                     # for testing
@@ -150,7 +150,7 @@ class TifModel:
         print(f'train size={len(X_test)}')
         print(f'val size={len(X_val)}')
         self.model.fit(X_train, y_train,
-                       epochs=20, batch_size=64,
+                       epochs=64, batch_size=64,
                        validation_data=(X_test, y_test))
 
     def predict_value(self, image_path: str, square_size: int = 64) -> str:
