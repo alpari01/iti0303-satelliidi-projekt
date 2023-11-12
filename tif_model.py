@@ -97,7 +97,7 @@ def get_data(root_path: str, square_size: int, max_image_size: int, dataset_size
                     read_image(root_path + '/tif_images/' + station_folder + '/' + image_path, square_size)[0])
                 measurements.append(find_hs_class(find_hs_measurement(image_path, root_path)))
 
-                print(len(images), len(measurements), round(image_size, 2), station_folder)
+                print(len(images), len(measurements), round(image_size, 2), station_folder, image_path)
 
                 if len(images) == dataset_size:
                     # for testing
