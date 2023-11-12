@@ -6,8 +6,6 @@ from datetime import datetime
 import numpy as np
 import pandas
 import os
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Conv2D, MaxPool2D, Flatten
 
 
 def get_time_and_code(image_path: str):
