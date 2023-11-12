@@ -6,6 +6,7 @@ from datetime import datetime
 import numpy as np
 import pandas
 import os
+import sys
 
 
 def get_time_and_code(image_path: str):
@@ -98,6 +99,7 @@ def get_data(root_path: str, square_size: int, max_image_size: int, dataset_size
                 measurements.append(find_hs_class(find_hs_measurement(image_path, root_path)))
 
                 print(len(images), len(measurements), round(image_size, 2), station_folder, image_path)
+                sys.stdout.flush()
 
                 if len(images) == dataset_size:
                     # for testing
