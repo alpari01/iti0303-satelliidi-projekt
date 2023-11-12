@@ -9,7 +9,7 @@ import os
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Conv2D, MaxPool2D, Flatten
 
-def get_time_and_code(image_path: str) -> tuple[datetime, str]:
+def get_time_and_code(image_path: str):
   path, filename = os.path.split(image_path)
   time = filename.split('_')[3]
   code = filename.split('_')[0]
@@ -49,7 +49,7 @@ def get_image_size(image_path: str) -> int:
   image_size = os.path.getsize(image_path)
   return image_size / 1024 / 1024
 
-def read_image(image_path: str, square_size: int) -> tuple[np.array, list]:
+def read_image(image_path: str, square_size: int):
   """
     Read a TIFF image file and return a cropped portion along with metadata.
 
@@ -76,7 +76,7 @@ def read_image(image_path: str, square_size: int) -> tuple[np.array, list]:
 
   return tif[0:3, row_kesk-square_size:row_kesk+square_size, col_kesk-square_size:col_kesk+square_size], meta
 
-def get_data(root_path: str, square_size: int, max_image_size: int, dataset_size) -> tuple[np.array, np.array]:
+def get_data(root_path: str, square_size: int, max_image_size: int, dataset_size):
   images = []
   measurements = []
 
