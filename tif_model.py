@@ -132,7 +132,7 @@ class TifModel:
             keras.layers.Dense(6, activation='linear')
         ])
         model.compile(optimizer='adam',
-                      loss='categorical_crossentropy',
+                      loss='mse',
                       metrics=['accuracy'])
         self.model = model
         print("Successfully built model")
