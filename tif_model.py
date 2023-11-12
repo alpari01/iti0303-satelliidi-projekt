@@ -1,17 +1,13 @@
 import tensorflow as tf
-from tensorflow import keras
 from sklearn.model_selection import train_test_split
 import tifffile
 from datetime import datetime
 import numpy as np
 import pandas
 import os
-from keras.utils import to_categorical as to_categorical
 
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Conv2D, MaxPool2D, Flatten
-
-import matplotlib.pyplot as plt
 
 def get_time_and_code(image_path: str) -> tuple[datetime, str]:
   path, filename = os.path.split(image_path)

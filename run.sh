@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pip install tensorflow scikit-learn tifffile pandas
+
 python_executable="./tif_model_exe.py"
 
-$python_executable
+python3 $python_executable
