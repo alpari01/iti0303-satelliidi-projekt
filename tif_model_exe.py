@@ -1,7 +1,7 @@
 import tif_model
 
 model = tif_model.TifModel()
-model.root_path("/illukas/data/projects/iti_wave_2023")
+model.root_path = "/illukas/data/projects/iti_wave_2023"
 
 model.build_dataset(64, 40, 10)
 model.model_build()
