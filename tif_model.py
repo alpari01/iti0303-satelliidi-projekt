@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow import keras
 from sklearn.model_selection import train_test_split
 import tifffile
 from datetime import datetime
@@ -124,23 +125,10 @@ class TifModel:
         return f"features size is: {len(self.features)}, labels size is: {len(self.labels)}"
 
     def build_dataset(self, square_size: int = 64, max_image_size: int = 40, dataset_size: int = 10):
-        print(
-            f"\nBuilding dataset with parameters: square size: {square_size}px, max image size: {max_image_size}MB, dataset size: {dataset_size}")
+        print(f"\nBuilding dataset with parameters: square size: {square_size}px, max image size: {max_image_size}MB, dataset size: {dataset_size}")
         self.features, self.labels = get_data(self.root_path, square_size, max_image_size, dataset_size)
         print("Successfully built dataset")
         print(self.get_dataset_info())
-
-    def prepare_dataset(self) -> None:
-        print("\nSplitting dataset into training, testing and validation...")
-        X_train, X_temp, y_train, y_temp = train_test_split(self.features, self.labels, test_size=0.2, random_state=42)
-        X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
-        X_train = tf.transpose(X_train, perm=[0, 2, 3, 1])
-        X_test = tf.transpose(X_test, perm=[0, 2, 3, 1])
-        X_val = tf.transpose(X_test, perm=[0, 2, 3, 1])
-        print("Successfully prepared dataset")
-        print(f'test size={len(X_train)}')
-        print(f'train size={len(X_test)}')
-        print(f'val size={len(X_val)}')
 
     def get_summary(self) -> str:
         return self.model.summary()
@@ -162,6 +150,22 @@ class TifModel:
         self.model = model_1
         print("Successfully built model")
         print(self.get_summary())
+
+    def model_fit(self) -> None:
+        print("\nSplitting dataset into training, testing and validation...")
+        X_train, X_temp, y_train, y_temp = train_test_split(self.features, self.labels, test_size=0.2,
+                                                            random_state=42)
+        X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+        X_train = tf.transpose(X_train, perm=[0, 2, 3, 1])
+        X_test = tf.transpose(X_test, perm=[0, 2, 3, 1])
+        X_val = tf.transpose(X_test, perm=[0, 2, 3, 1])
+        print("Successfully prepared dataset")
+        print(f'test size={len(X_train)}')
+        print(f'train size={len(X_test)}')
+        print(f'val size={len(X_val)}')
+        self.model.fit(X_train, keras.utils.to_categorical(y_train),
+                       epochs=20, batch_size=64,
+                       validation_data=(X_test, keras.utils.to_categorical(y_test)))
 
     def predict_value(self, image_path: str, square_size: int = 64) -> str:
         hs_classes_dict = {0: "0-0.5m", 1: "0.51-1m", 2: "1.01-1.5m", 3: "1.51-2m", 4: "2.01-2.5m", 5: "2.51+m"}
