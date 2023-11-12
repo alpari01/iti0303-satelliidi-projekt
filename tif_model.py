@@ -131,7 +131,7 @@ class TifModel:
             keras.layers.Conv2D(8, (3, 3), activation='relu'),
             keras.layers.Flatten(),
             keras.layers.Dense(8, activation='relu'),
-            keras.layers.Dense(6, activation='linear')
+            keras.layers.Dense(6, activation='softmax')
         ])
         model.compile(optimizer='adam',
                       loss='mse',
