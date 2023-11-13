@@ -6,7 +6,7 @@ start_time = time.time()
 model = tif_model.TifModel()
 model.root_path = "/illukas/data/projects/iti_wave_2023"
 
-model.build_dataset(64, 40, 900)
+model.build_dataset(64, 40, 2000)
 model.model_build()
 model.model_fit()
 model.predict_value("/illukas/data/projects/iti_wave_2023/tif_images/knolls_gcp_2/knolls_gcp_2_20180909T162907_20180909T162932_S1A_6FBB_S1A_IW_GRDH_1SDV_20180909T162907_20180909T162932_023624_029305_6FBB.tif", 64)

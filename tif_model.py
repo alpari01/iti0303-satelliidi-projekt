@@ -95,16 +95,21 @@ def get_data(root_path: str, square_size: int, max_image_size: int, dataset_size
             image_size = get_image_size(root_path + '/tif_images/' + station_folder + '/' + image_path)
 
             if image_size > max_image_size:
-                images.append(
-                    read_image(root_path + '/tif_images/' + station_folder + '/' + image_path, square_size)[0])
-                measurements.append(find_hs_class(find_hs_measurement(image_path, root_path)))
+                try:
+                    images.append(
+                        read_image(root_path + '/tif_images/' + station_folder + '/' + image_path, square_size)[0])
+                    measurements.append(find_hs_class(find_hs_measurement(image_path, root_path)))
 
-                print(len(images), len(measurements), image_size, psutil.cpu_percent(), f"RAM in use: {psutil.virtual_memory().used / (1024 ** 3):.2f} GB",  f"RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB")
-                sys.stdout.flush()
+                    print(len(images), len(measurements), image_size, psutil.cpu_percent(),
+                          f" | RAM in use: {psutil.virtual_memory().used / (1024 ** 3):.2f} GB",
+                          f" | RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB")
+                    sys.stdout.flush()
 
-                if len(images) == dataset_size:
-                    # for testing
-                    return np.array(images), np.array(measurements)
+                    if len(images) == dataset_size:
+                        # for testing
+                        return np.array(images), np.array(measurements)
+                except Exception as e:
+                    print("Could not read image, skipping.")
     return None
 
 
