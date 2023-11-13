@@ -105,7 +105,7 @@ def get_data(root_path: str, square_size: int, max_image_size: int, dataset_size
                     print(len(images), len(measurements), f"img size: {round(image_size, 2)} MB,",
                           f"shape: {image.shape},", f"measurement (HS class): {measurement}",
                           f" | RAM in use: {psutil.virtual_memory().used / (1024 ** 3):.2f} GB",
-                          f" RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB")
+                          f" RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB", f"image path: {image_path}")
                     sys.stdout.flush()
 
                     if len(images) == dataset_size:
