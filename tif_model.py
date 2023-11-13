@@ -100,9 +100,9 @@ def get_data(root_path: str, square_size: int, max_image_size: int, dataset_size
                         read_image(root_path + '/tif_images/' + station_folder + '/' + image_path, square_size)[0])
                     measurements.append(find_hs_class(find_hs_measurement(image_path, root_path)))
 
-                    print(len(images), len(measurements), image_size, psutil.cpu_percent(),
+                    print(len(images), len(measurements), f"img size: {round(image_size, 2)} MB",
                           f" | RAM in use: {psutil.virtual_memory().used / (1024 ** 3):.2f} GB",
-                          f" | RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB")
+                          f" RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB")
                     sys.stdout.flush()
 
                     if len(images) == dataset_size:
