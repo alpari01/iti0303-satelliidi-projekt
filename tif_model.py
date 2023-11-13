@@ -18,7 +18,7 @@ def get_time_and_code(image_path: str):
 
 
 def find_hs_class(hs: np.float64) -> int:
-    if 0 <= hs < 0.5:
+    if hs < 0.5:
         return 0
     if 0.5 <= hs < 1.0:
         return 1
