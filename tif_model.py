@@ -93,11 +93,22 @@ class TifModel:
     def get_dataset_info(self) -> str:
         return f"features size is: {len(self.features)}, labels size is: {len(self.labels)}"
 
-    def add_image_class_to_counter(self, hs_class: int) -> None:
-        if hs_class in self.hs_classes_counter.keys():
-            self.hs_classes_counter[hs_class] += 1
-        else:
-            self.hs_classes_counter[hs_class] = 1
+    def get_images_class_counter_stats(self) -> str:
+        res = "Images per HS class (0 - 5):\n"
+        for hs_class, amount in self.hs_classes_counter.items():
+            if hs_class == 0:
+                res += f"0m - 0.5m: {amount}\n"
+            if hs_class == 1:
+                res += f"0.51m - 1.0m: {amount}\n"
+            if hs_class == 2:
+                res += f"1.01m - 1.5m: {amount}\n"
+            if hs_class == 3:
+                res += f"1.51m - 2.0m: {amount}\n"
+            if hs_class == 4:
+                res += f"2.01m - 2.5m: {amount}\n"
+            if hs_class == 5:
+                res += f"2.51m - inf: {amount}\n"
+        return res
 
     def get_data(self, root_path: str, square_size: int, max_image_size: int, dataset_size):
         images = []
