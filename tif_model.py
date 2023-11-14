@@ -147,9 +147,9 @@ class TifModel:
                                   f"image path: {image_path}")
                             sys.stdout.flush()
 
-                            if len(images) == dataset_size:
-                                # for testing
-                                return np.array(images), np.array(measurements)
+                        if len(images) == dataset_size:
+                            # for testing
+                            return np.array(images), np.array(measurements)
                     except Exception as e:
                         print("Could not read image, skipping.")
         return None
