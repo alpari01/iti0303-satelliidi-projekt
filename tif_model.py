@@ -93,6 +93,12 @@ class TifModel:
     def get_dataset_info(self) -> str:
         return f"features size is: {len(self.features)}, labels size is: {len(self.labels)}"
 
+    def add_image_class_to_counter(self, hs_class: int) -> None:
+        if hs_class in self.hs_classes_counter.keys():
+            self.hs_classes_counter[hs_class] += 1
+        else:
+            self.hs_classes_counter[hs_class] = 1
+
     def get_images_class_counter_stats(self) -> str:
         res = "Images per HS class (0 - 5):\n"
         for hs_class, amount in self.hs_classes_counter.items():
@@ -124,24 +130,26 @@ class TifModel:
 
                 if image_size > max_image_size:
                     try:
-                        image = read_image(root_path + '/tif_images/' + station_folder + '/' + image_path, square_size)[
-                            0]
-                        images.append(image)
-
                         measurement = find_hs_class(find_hs_measurement(image_path, root_path))
-                        measurements.append(measurement)
-                        self.add_image_class_to_counter(measurement)
 
-                        print(len(images), len(measurements), f"img size: {round(image_size, 2)} MB,",
-                              f"shape: {image.shape},", f"measurement (HS class): {measurement}",
-                              f" | RAM in use: {psutil.virtual_memory().used / (1024 ** 3):.2f} GB",
-                              f" RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB",
-                              f"image path: {image_path}")
-                        sys.stdout.flush()
+                        if measurement:
+                            image = read_image(root_path + '/tif_images/' + station_folder + '/' + image_path, square_size)[
+                                0]
+                            images.append(image)
 
-                        if len(images) == dataset_size:
-                            # for testing
-                            return np.array(images), np.array(measurements)
+                            measurements.append(measurement)
+                            self.add_image_class_to_counter(measurement)
+
+                            print(len(images), len(measurements), f"img size: {round(image_size, 2)} MB,",
+                                  f"shape: {image.shape},", f"measurement (HS class): {measurement}",
+                                  f" | RAM in use: {psutil.virtual_memory().used / (1024 ** 3):.2f} GB",
+                                  f" RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB",
+                                  f"image path: {image_path}")
+                            sys.stdout.flush()
+
+                            if len(images) == dataset_size:
+                                # for testing
+                                return np.array(images), np.array(measurements)
                     except Exception as e:
                         print("Could not read image, skipping.")
         return None
@@ -152,6 +160,7 @@ class TifModel:
         self.labels = keras.utils.to_categorical(self.labels, num_classes=6)
         print("Successfully built dataset")
         print(f"Features size is: {len(self.features)}, labels size is: {len(self.labels)}")
+        print(self.get_images_class_counter_stats())
 
     def model_build(self) -> None:
         print("\nBuilding CNN model...")
