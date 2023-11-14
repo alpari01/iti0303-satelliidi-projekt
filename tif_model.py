@@ -82,50 +82,62 @@ def read_image(image_path: str, square_size: int):
     return tif[0:3, row_mid - square_size:row_mid + square_size, col_mid - square_size:col_mid + square_size], meta
 
 
-def get_data(root_path: str, square_size: int, max_image_size: int, dataset_size):
-    images = []
-    measurements = []
-
-    station_folders = os.listdir(root_path + '/tif_images')
-
-    for station_folder in station_folders:
-        image_paths = os.listdir(os.path.join(root_path + '/tif_images', station_folder))
-
-        for image_path in image_paths:
-            image_size = get_image_size(root_path + '/tif_images/' + station_folder + '/' + image_path)
-
-            if image_size > max_image_size:
-                try:
-                    image = read_image(root_path + '/tif_images/' + station_folder + '/' + image_path, square_size)[0]
-                    images.append(image)
-
-                    measurement = find_hs_class(find_hs_measurement(image_path, root_path))
-                    measurements.append(measurement)
-
-                    print(len(images), len(measurements), f"img size: {round(image_size, 2)} MB,",
-                          f"shape: {image.shape},", f"measurement (HS class): {measurement}",
-                          f" | RAM in use: {psutil.virtual_memory().used / (1024 ** 3):.2f} GB",
-                          f" RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB", f"image path: {image_path}")
-                    sys.stdout.flush()
-
-                    if len(images) == dataset_size:
-                        # for testing
-                        return np.array(images), np.array(measurements)
-                except Exception as e:
-                    print("Could not read image, skipping.")
-    return None
-
-
 class TifModel:
     def __init__(self):
         self.features = None
         self.labels = None
         self.model = None
         self.root_path = None
+        self.hs_classes_counter = {}
+
+    def get_dataset_info(self) -> str:
+        return f"features size is: {len(self.features)}, labels size is: {len(self.labels)}"
+
+    def add_image_class_to_counter(self, hs_class: int) -> None:
+        if hs_class in self.hs_classes_counter.keys():
+            self.hs_classes_counter[hs_class] += 1
+        else:
+            self.hs_classes_counter[hs_class] = 1
+
+    def get_data(self, root_path: str, square_size: int, max_image_size: int, dataset_size):
+        images = []
+        measurements = []
+
+        station_folders = os.listdir(root_path + '/tif_images')
+
+        for station_folder in station_folders:
+            image_paths = os.listdir(os.path.join(root_path + '/tif_images', station_folder))
+
+            for image_path in image_paths:
+                image_size = get_image_size(root_path + '/tif_images/' + station_folder + '/' + image_path)
+
+                if image_size > max_image_size:
+                    try:
+                        image = read_image(root_path + '/tif_images/' + station_folder + '/' + image_path, square_size)[
+                            0]
+                        images.append(image)
+
+                        measurement = find_hs_class(find_hs_measurement(image_path, root_path))
+                        measurements.append(measurement)
+                        self.add_image_class_to_counter(measurement)
+
+                        print(len(images), len(measurements), f"img size: {round(image_size, 2)} MB,",
+                              f"shape: {image.shape},", f"measurement (HS class): {measurement}",
+                              f" | RAM in use: {psutil.virtual_memory().used / (1024 ** 3):.2f} GB",
+                              f" RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB",
+                              f"image path: {image_path}")
+                        sys.stdout.flush()
+
+                        if len(images) == dataset_size:
+                            # for testing
+                            return np.array(images), np.array(measurements)
+                    except Exception as e:
+                        print("Could not read image, skipping.")
+        return None
 
     def build_dataset(self, square_size: int = 64, max_image_size: int = 40, dataset_size: int = 10):
         print(f"\nBuilding dataset with parameters: square size: {square_size}px, max image size: {max_image_size}MB, dataset size: {dataset_size}")
-        self.features, self.labels = get_data(self.root_path, square_size, max_image_size, dataset_size)
+        self.features, self.labels = self.get_data(self.root_path, square_size, max_image_size, dataset_size)
         self.labels = keras.utils.to_categorical(self.labels, num_classes=6)
         print("Successfully built dataset")
         print(f"Features size is: {len(self.features)}, labels size is: {len(self.labels)}")
