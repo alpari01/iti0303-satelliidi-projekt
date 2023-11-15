@@ -9,7 +9,7 @@ import os
 import sys
 import psutil
 import traceback
-import csv
+import pickle
 
 
 def get_time_and_code(image_path: str):
@@ -86,17 +86,26 @@ def read_image(image_path: str, square_size: int):
     return tif[0:3, row_mid - square_size:row_mid + square_size, col_mid - square_size:col_mid + square_size]
 
 
+def save_to_pickle(images: np.ndarray, measurements: np.ndarray, pickle_path: str):
+    with open(pickle_path, "wb") as file:
+        pickle.dump({'images': images, 'measurements': measurements}, file)
+
+
+def read_from_pickle(pickle_path: str):
+    with open(pickle_path, "rb") as file:
+        data = pickle.load(file)
+        images = data['images']
+        measurements = keras.utils.to_categorical(data['measurements'], num_classes=6)
+    return images, measurements
+
+
 class TifModel:
     def __init__(self):
-        self.features = []
-        self.labels = []
         self.hs_classes_counter = {}
         self.model = None
         self.tif_images_root_path = None
         self.measurements_root_path = None
-
-    def get_dataset_info(self) -> str:
-        return f"features size is: {len(self.features)}, labels size is: {len(self.labels)}"
+        self.pickle_path = None
 
     def add_image_class_to_counter(self, hs_class: int) -> None:
         if hs_class in self.hs_classes_counter.keys():
@@ -147,6 +156,9 @@ class TifModel:
         """
         prepared_images = 0
 
+        images = []
+        measurements = []
+
         measurements_folders = os.listdir(self.tif_images_root_path)
         for measurement_folder in measurements_folders:
 
@@ -160,8 +172,8 @@ class TifModel:
                         if measurement:
                             image = read_image(self.tif_images_root_path + "/" + measurement_folder + "/" + image_path, square_size)
 
-                            self.features.append(image)
-                            self.labels.append(measurement)
+                            images.append(image)
+                            measurements.append(measurement)
 
                             prepared_images += 1
                             print(
@@ -175,9 +187,10 @@ class TifModel:
                             sys.stdout.flush()
 
                         if prepared_images == dataset_size:
-                            print("Dataset built!")
+                            save_to_pickle(np.array(images), np.array(measurements), self.pickle_path)
+                            print("Dataset built and saved!")
                             return
-                            # return np.array(images), np.array(measurements)
+
                     except Exception as e:
                       traceback.print_exc()
                       print(f"Could not read image, skipping.\nError: {e}")
@@ -204,10 +217,8 @@ class TifModel:
 
     def model_fit(self) -> None:
         print("\nSplitting dataset into training, testing and validation...")
-        self.features = np.array(self.features)
-        self.labels = np.array(self.labels)
-        self.labels = keras.utils.to_categorical(self.labels, num_classes=6)
-        X_train, X_temp, y_train, y_temp = train_test_split(self.features, self.labels, test_size=0.2, random_state=42)
+        features, labels = read_from_pickle(self.pickle_path)
+        X_train, X_temp, y_train, y_temp = train_test_split(features, labels, test_size=0.2, random_state=42)
         X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
         X_train = tf.transpose(X_train, perm=[0, 2, 3, 1])
         X_test = tf.transpose(X_test, perm=[0, 2, 3, 1])
