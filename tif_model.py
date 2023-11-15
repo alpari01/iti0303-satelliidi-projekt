@@ -227,7 +227,7 @@ class TifModel:
         print(f'train size={len(X_test)}')
         print(f'val size={len(X_val)}')
         self.model.fit(X_train, y_train,
-                       epochs=64, batch_size=64,
+                       epochs=640, batch_size=64,
                        validation_data=(X_test, y_test))
 
     def predict_value(self, image_path: str, square_size: int = 64) -> str:
