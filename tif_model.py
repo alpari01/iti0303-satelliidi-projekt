@@ -8,6 +8,8 @@ import pandas
 import os
 import sys
 import psutil
+import traceback
+import csv
 
 
 def get_time_and_code(image_path: str):
@@ -32,7 +34,7 @@ def find_hs_class(hs: np.float64) -> int:
         return 5
 
 
-def find_hs_measurement(image_path: str, root_path: str) -> np.float64:
+def find_hs_measurement(image_path: str, measurements_root_path: str) -> np.float64:
     """
     - root_path/
       - measurements/
@@ -40,8 +42,10 @@ def find_hs_measurement(image_path: str, root_path: str) -> np.float64:
       - temp/
       - tudengid_imgs/
     """
+    # /content/drive/MyDrive/TalTech/Tellimus/measurements
     time, code = get_time_and_code(image_path)
-    csv_data = pandas.read_csv(root_path + '/measurements/format_' + code + '.csv')
+    csv_data = pandas.read_csv(measurements_root_path + '/format_' + code + '.csv')
+    # csv_data = pandas.read_csv(root_path + '/measurements/format_' + code + '.csv')
     csv_data['Format time (UTC)'] = pandas.to_datetime(csv_data['Format time (UTC)'])
     closest_time_index = (csv_data['Format time (UTC)'] - time).abs().idxmin()
     hs = csv_data.loc[closest_time_index, 'HS']
@@ -79,16 +83,17 @@ def read_image(image_path: str, square_size: int):
 
     square_size = int(square_size / 2)
 
-    return tif[0:3, row_mid - square_size:row_mid + square_size, col_mid - square_size:col_mid + square_size], meta
+    return tif[0:3, row_mid - square_size:row_mid + square_size, col_mid - square_size:col_mid + square_size]
 
 
 class TifModel:
     def __init__(self):
-        self.features = None
-        self.labels = None
-        self.model = None
-        self.root_path = None
+        self.features = []
+        self.labels = []
         self.hs_classes_counter = {}
+        self.model = None
+        self.tif_images_root_path = None
+        self.measurements_root_path = None
 
     def get_dataset_info(self) -> str:
         return f"features size is: {len(self.features)}, labels size is: {len(self.labels)}"
@@ -116,51 +121,67 @@ class TifModel:
                 res += f"2.51m - inf: {amount}\n"
         return res
 
-    def get_data(self, root_path: str, square_size: int, max_image_size: int, dataset_size):
-        images = []
-        measurements = []
+    def build_dataset(self, square_size: int, max_image_size_mb: int, dataset_size: int):
+        """
+        This function builds a dataset for a CNN model. It reads .tif images and their measurements,
+        then converts each image to np.array and saves the data class variables.
 
-        station_folders = os.listdir(root_path + '/tif_images')
+        tif_images_root_path/
+            - gof_gcp_2/
+                - gof_gcp_2_xxxxx1.tif
+                - gof_gcp_2_xxxxx2.tif
+                - ...
+            - knolls_gcp_2/
+            - nbp_gcp_2/
+            - selka_gcp_2/
 
-        for station_folder in station_folders:
-            image_paths = os.listdir(os.path.join(root_path + '/tif_images', station_folder))
+        measurements_root_path/
+            - format_gof.csv
+            - format_knolls.csv
+            - format_nbp.csv
+            - format_selks.csv
 
+        square size: int - image size to cut (32px, 64px, 128px, 256px, or 512px)
+        max_image_size_mb: int - all images below this size (in MB) are discarded
+        dataset_size: int - amount of images to convert
+        """
+        prepared_images = 0
+
+        measurements_folders = os.listdir(self.tif_images_root_path)
+        for measurement_folder in measurements_folders:
+
+            image_paths = os.listdir(os.path.join(self.tif_images_root_path, measurement_folder))
             for image_path in image_paths:
-                image_size = get_image_size(root_path + '/tif_images/' + station_folder + '/' + image_path)
 
-                if image_size > max_image_size:
+                image_size = get_image_size(self.tif_images_root_path + "/" + measurement_folder + "/" + image_path)
+                if image_size >= max_image_size_mb:
                     try:
-                        measurement = find_hs_class(find_hs_measurement(image_path, root_path))
-
+                        measurement = find_hs_class(find_hs_measurement(image_path, self.measurements_root_path))
                         if measurement:
-                            image = read_image(root_path + '/tif_images/' + station_folder + '/' + image_path, square_size)[
-                                0]
-                            images.append(image)
+                            image = read_image(self.tif_images_root_path + "/" + measurement_folder + "/" + image_path, square_size)
 
-                            measurements.append(measurement)
-                            self.add_image_class_to_counter(measurement)
+                            self.features.append(image)
+                            self.labels.append(measurement)
 
-                            print(len(images), len(measurements), f"img size: {round(image_size, 2)} MB,",
-                                  f"shape: {image.shape},", f"measurement (HS class): {measurement}",
-                                  f" | RAM in use: {psutil.virtual_memory().used / (1024 ** 3):.2f} GB",
-                                  f" RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB",
-                                  f"image path: {image_path}")
+                            prepared_images += 1
+                            print(
+                                f"image nr: {prepared_images}",
+                                f"img size: {round(image_size, 2)} MB,",
+                                f"HS class: {measurement}",
+                                f" | RAM in use: {psutil.virtual_memory().used / (1024 ** 3):.2f} GB",
+                                f" RAM avail: {psutil.virtual_memory().total / (1024 ** 3):.2f} GB",
+                                f"image path: {image_path}"
+                            )
                             sys.stdout.flush()
 
-                        if len(images) == dataset_size:
-                            # for testing
-                            return np.array(images), np.array(measurements)
+                        if prepared_images == dataset_size:
+                            print("Dataset built!")
+                            return
+                            # return np.array(images), np.array(measurements)
                     except Exception as e:
-                        print("Could not read image, skipping.")
-        return None
-
-    def build_dataset(self, square_size: int = 64, max_image_size: int = 40, dataset_size: int = 10):
-        print(f"\nBuilding dataset with parameters: square size: {square_size}px, max image size: {max_image_size}MB, dataset size: {dataset_size}")
-        self.features, self.labels = self.get_data(self.root_path, square_size, max_image_size, dataset_size)
-        self.labels = keras.utils.to_categorical(self.labels, num_classes=6)
-        print("Successfully built dataset")
-        print(f"Features size is: {len(self.features)}, labels size is: {len(self.labels)}")
-        print(self.get_images_class_counter_stats())
+                      traceback.print_exc()
+                      print(f"Could not read image, skipping.\nError: {e}")
+                      return
 
     def model_build(self) -> None:
         print("\nBuilding CNN model...")
@@ -183,6 +204,9 @@ class TifModel:
 
     def model_fit(self) -> None:
         print("\nSplitting dataset into training, testing and validation...")
+        self.features = np.array(self.features)
+        self.labels = np.array(self.labels)
+        self.labels = keras.utils.to_categorical(self.labels, num_classes=6)
         X_train, X_temp, y_train, y_temp = train_test_split(self.features, self.labels, test_size=0.2, random_state=42)
         X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
         X_train = tf.transpose(X_train, perm=[0, 2, 3, 1])
@@ -199,10 +223,10 @@ class TifModel:
     def predict_value(self, image_path: str, square_size: int = 64) -> str:
         hs_classes_dict = {0: "0-0.5m", 1: "0.51-1m", 2: "1.01-1.5m", 3: "1.51-2m", 4: "2.01-2.5m", 5: "2.51+m"}
         print(f"\nPredicting HS value based on image..., square_size={square_size}")
-        x = read_image(image_path, square_size)[0]
+        x = read_image(image_path, square_size)
         x = x.reshape(1, 64, 64, 3)
         prediction = self.model.predict(x)
-        print(f"Actual HS value is: {find_hs_measurement(image_path, self.root_path)}")
+        print(f"Actual HS value is: {find_hs_measurement(image_path, self.measurements_root_path)}")
         print(f"Prediction 6 classes probability: {prediction}")
         print(f"HS classes dict: {hs_classes_dict}")
         print(f"Predicted HS class: {np.argmax(prediction)} ({hs_classes_dict[np.argmax(prediction)]})")
