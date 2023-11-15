@@ -194,7 +194,6 @@ class TifModel:
                     except Exception as e:
                       traceback.print_exc()
                       print(f"Could not read image, skipping.\nError: {e}")
-                      return
 
     def model_build(self) -> None:
         print("\nBuilding CNN model...")
