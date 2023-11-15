@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pip install tensorflow scikit-learn tifffile pandas psutil pickle
+pip install tensorflow scikit-learn tifffile pandas psutil
 
 python_executable="./tif_build_model.py"
 
