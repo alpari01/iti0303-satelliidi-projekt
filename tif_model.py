@@ -102,14 +102,14 @@ def read_from_pickle(pickle_path: str):
     return images, measurements
 
 
-def plot_confusion_matrix(y_true, y_pred):
+def plot_confusion_matrix(y_true, y_pred, square_size: int):
     cm = confusion_matrix(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5])
     class_names = ["Class 0", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5"]
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
     plt.title("Confusion Matrix")
     plt.xlabel("Predicted")
     plt.ylabel("True")
-    plt.savefig('confusion_matrix.png', dpi=300)
+    plt.savefig(f"confusion_matrix-{square_size}px.png", dpi=300)
     plt.show()
 
 
@@ -254,7 +254,7 @@ class TifModel:
 
         y_pred = np.argmax(self.model.predict(X_test), axis=1)
         y_true = np.argmax(y_test, axis=1)
-        plot_confusion_matrix(y_true, y_pred)
+        plot_confusion_matrix(y_true, y_pred, square_size)
         print(classification_report(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5], zero_division=1))
 
     def predict_value(self, image_path: str, square_size: int = 64) -> str:
