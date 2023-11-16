@@ -213,6 +213,7 @@ class TifModel:
         print("\nBuilding CNN model...")
         print("Num GPUs Available: ", tf.config.list_physical_devices('GPU'))
         gpus = tf.config.list_physical_devices('GPU')
+        print(tf.reduce_sum(tf.random.normal([1000, 1000])))
         if gpus:
             tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
             tf.config.experimental.set_memory_growth(gpus[0], True)
