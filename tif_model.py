@@ -211,6 +211,13 @@ class TifModel:
 
     def model_build(self) -> None:
         print("\nBuilding CNN model...")
+        print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        if gpus:
+            tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
+            tf.config.experimental.set_memory_growth(gpus[0], True)
+
         model = keras.Sequential([
             keras.layers.Conv2D(16, (3, 3), activation='relu', input_shape=(64, 64, 3)),
             keras.layers.MaxPooling2D((2, 2)),
