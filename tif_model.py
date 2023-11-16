@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, classification_report
 import tifffile
 from datetime import datetime
 import numpy as np
@@ -10,6 +11,8 @@ import sys
 import psutil
 import traceback
 import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def get_time_and_code(image_path: str):
@@ -20,17 +23,17 @@ def get_time_and_code(image_path: str):
 
 
 def find_hs_class(hs: np.float64) -> int:
-    if hs < 0.5:
+    if hs <= 0.5:
         return 0
-    if 0.5 <= hs < 1.0:
+    if 0.5 < hs <= 1.0:
         return 1
-    if 1.0 <= hs < 1.5:
+    if 1.0 < hs <= 1.5:
         return 2
-    if 1.5 <= hs < 2.0:
+    if 1.5 < hs <= 2.0:
         return 3
-    if 2.0 <= hs < 2.5:
+    if 2.0 < hs <= 2.5:
         return 4
-    if 2.5 <= hs:
+    if 2.5 < hs:
         return 5
 
 
@@ -97,6 +100,17 @@ def read_from_pickle(pickle_path: str):
         images = data['images']
         measurements = keras.utils.to_categorical(data['measurements'], num_classes=6)
     return images, measurements
+
+
+def plot_confusion_matrix(y_true, y_pred):
+    cm = confusion_matrix(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5])
+    class_names = ["Class 0", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5"]
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
+    plt.title("Confusion Matrix")
+    plt.xlabel("Predicted")
+    plt.ylabel("True")
+    plt.savefig('confusion_matrix.png', dpi=300)
+    plt.show()
 
 
 class TifModel:
@@ -226,9 +240,15 @@ class TifModel:
         print(f'test size={len(X_train)}')
         print(f'train size={len(X_test)}')
         print(f'val size={len(X_val)}')
+
         self.model.fit(X_train, y_train,
                        epochs=640, batch_size=64,
                        validation_data=(X_test, y_test))
+
+        y_pred = np.argmax(self.model.predict(X_test), axis=1)
+        y_true = np.argmax(y_test, axis=1)
+        plot_confusion_matrix(y_true, y_pred)
+        print(classification_report(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5], zero_division=1))
 
     def predict_value(self, image_path: str, square_size: int = 64) -> str:
         hs_classes_dict = {0: "0-0.5m", 1: "0.51-1m", 2: "1.01-1.5m", 3: "1.51-2m", 4: "2.01-2.5m", 5: "2.51+m"}
