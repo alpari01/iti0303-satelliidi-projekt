@@ -169,7 +169,7 @@ class TifModel:
                 if image_size >= max_image_size_mb:
                     try:
                         measurement = find_hs_class(find_hs_measurement(image_path, self.measurements_root_path))
-                        if measurement:
+                        if isinstance(measurement, int):
                             image = read_image(self.tif_images_root_path + "/" + measurement_folder + "/" + image_path, square_size)
 
                             images.append(image)
