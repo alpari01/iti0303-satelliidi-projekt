@@ -6,10 +6,10 @@ start_time = time.time()
 model = tif_model.TifModel()
 model.tif_images_root_path = "/illukas/data/projects/iti_wave_2023/tif_images"
 model.measurements_root_path = "/illukas/data/projects/iti_wave_2023/measurements"
-model.pickle_path = "/illukas/data/projects/iti_wave_2023/iti0303-satelliidi-projekt/data.pkl"
+model.pickle_path = "/illukas/data/projects/iti_wave_2023/iti0303-satelliidi-projekt"
 
-model.model_build()
-model.model_fit()
+model.model_build(square_size=64)
+model.model_fit(square_size=64)
 model.predict_value("/illukas/data/projects/iti_wave_2023/tif_images/knolls_gcp_2/knolls_gcp_2_20180909T162907_20180909T162932_S1A_6FBB_S1A_IW_GRDH_1SDV_20180909T162907_20180909T162932_023624_029305_6FBB.tif", 64)
 model.predict_value("/illukas/data/projects/iti_wave_2023/tif_images/knolls_gcp_2/knolls_gcp_2_20160919T162830_20160919T162855_S1A_6A27_S1A_IW_GRDH_1SDV_20160919T162830_20160919T162855_013124_014D70_6A27.tif", 64)
 model.predict_value("/illukas/data/projects/iti_wave_2023/tif_images/knolls_gcp_2/knolls_gcp_2_20161019T162755_20161019T162820_S1B_B03F_S1B_IW_GRDH_1SDV_20161019T162755_20161019T162820_002578_0045AA_B03F.tif", 64)

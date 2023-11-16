@@ -201,7 +201,7 @@ class TifModel:
                             sys.stdout.flush()
 
                         if prepared_images == dataset_size:
-                            save_to_pickle(np.array(images), np.array(measurements), self.pickle_path)
+                            save_to_pickle(np.array(images), np.array(measurements), self.pickle_path + f"/data-{square_size}px.pkl")
                             print("Dataset built and saved!")
                             return
 
@@ -209,7 +209,7 @@ class TifModel:
                       traceback.print_exc()
                       print(f"Could not read image, skipping.\nError: {e}")
 
-    def model_build(self) -> None:
+    def model_build(self, square_size: int) -> None:
         print("\nBuilding CNN model...")
         print("Num GPUs Available: ", tf.config.list_physical_devices('GPU'))
         gpus = tf.config.list_physical_devices('GPU')
@@ -219,7 +219,7 @@ class TifModel:
             tf.config.experimental.set_memory_growth(gpus[0], True)
 
         model = keras.Sequential([
-            keras.layers.Conv2D(16, (3, 3), activation='relu', input_shape=(64, 64, 3)),
+            keras.layers.Conv2D(16, (3, 3), activation='relu', input_shape=(square_size, square_size, 3)),
             keras.layers.MaxPooling2D((2, 2)),
             keras.layers.Conv2D(32, (3, 3), activation='relu'),
             keras.layers.MaxPooling2D((2, 2)),
@@ -235,9 +235,9 @@ class TifModel:
         print("Successfully built model")
         print(self.model.summary())
 
-    def model_fit(self) -> None:
+    def model_fit(self, square_size: int) -> None:
         print("\nSplitting dataset into training, testing and validation...")
-        features, labels = read_from_pickle(self.pickle_path)
+        features, labels = read_from_pickle(self.pickle_path + f"/data-{square_size}px.pkl")
         X_train, X_temp, y_train, y_temp = train_test_split(features, labels, test_size=0.2, random_state=42)
         X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
         X_train = tf.transpose(X_train, perm=[0, 2, 3, 1])
