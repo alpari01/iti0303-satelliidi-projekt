@@ -56,8 +56,8 @@ def transfer_indices(from_where, to_where):
 
 
 if __name__ == '__main__':
-    tif_file = r'tiff/s1b-ew-grd-hh-20191106t160337-20191106t160441-018809-023761-001.tiff'
-    shapefile = r'tiff/gshhg-shp-2.3.7/GSHHS_shp/f/GSHHS_f_L1.shp'
+    tif_file = r'./s1a-iw-grd-vv-20221027t160500-20221027t160525-045630-0574c2-001.tiff'
+    shapefile = r'./gshhg-shp-2.3.7/GSHHS_shp/f/GSHHS_f_L1.shp'
 
     print('Program started...')
 
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     aspect_ratio = result_data.shape[1] / result_data.shape[0]
     fig = plt.figure(figsize=(6 * aspect_ratio, 6))
-    sns.heatmap(result_data, cmap='gray', vmin=0, vmax=3000, cbar=False)
-    plt.savefig('plot.png', dpi=3000)
+    sns.heatmap(result_data, cmap='gray', vmin=0, vmax=1000, cbar=False)
+    plt.savefig('plot.png', dpi=5000)
     plt.show()
     print('...successfully created plot.')
