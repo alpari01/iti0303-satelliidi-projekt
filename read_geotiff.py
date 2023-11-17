@@ -11,7 +11,7 @@ def get_landmask_and_error(filein, shapefile):
 
     gdal.AllRegister()
 
-    tif_copy = 'temp/' + product_name + '_temp.tiff'
+    tif_copy = './temp/' + product_name + '_temp.tiff'
     shutil.copy2(filein, tif_copy)
 
     cmd = 'gdal_rasterize -burn 0 ' + shapefile + ' ' + tif_copy
