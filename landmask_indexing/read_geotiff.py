@@ -1,4 +1,4 @@
-from osgeo import gdal
+from osgeo import gdal, osr
 import os
 import shutil
 import subprocess
@@ -11,15 +11,20 @@ def get_landmask_and_error(filein, shapefile):
 
     gdal.AllRegister()
 
-    tif_copy = './temp/' + product_name + '_temp.tiff'
+    tif_copy = 'landmask_indexing/temp/' + product_name + '_temp.tiff'
     shutil.copy2(filein, tif_copy)
 
     cmd = 'gdal_rasterize -burn 0 ' + shapefile + ' ' + tif_copy
     subprocess.call(cmd, shell=True)
 
     raster = gdal.Open(tif_copy)
+    if raster is None:
+        raise Exception(f"Could not open the raster file: {filein}")
+
     raster_band = raster.GetRasterBand(1).ReadAsArray()
     error_and_landmask = (raster_band != 0).astype(int)
+
+    os.remove(tif_copy)
 
     return error_and_landmask
 

@@ -30,8 +30,8 @@ def get_indices(data, max_square, min_square, filling=0.999, prev_row_start=0, p
 
 
 if __name__ == '__main__':
-    tif_file = r'tiff/s1b-ew-grd-hh-20191106t160337-20191106t160441-018809-023761-001.tiff'
-    shapefile = r'tiff/gshhg-shp-2.3.7/GSHHS_shp/f/GSHHS_f_L1.shp'
+    tif_file = r'landmask_indexing/tiff/s1b-ew-grd-hh-20191106t160337-20191106t160441-018809-023761-001.tiff'
+    shapefile = r'landmask_indexing/tiff/gshhg-shp-2.3.7/GSHHS_shp/f/GSHHS_f_L1.shp'
 
     print('Program started...')
 
@@ -47,3 +47,5 @@ if __name__ == '__main__':
     end_time = time.time()
 
     print(f'...algorithm execution time {round(end_time - start_time, 2)} sec.')
+
+    print(indices)
