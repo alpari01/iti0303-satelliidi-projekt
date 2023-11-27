@@ -237,7 +237,7 @@ class TifModel:
 
     def model_fit(self, square_size: int) -> None:
         print("\nSplitting dataset into training, testing and validation...")
-        features, labels = read_from_pickle(self.pickle_path + f"/data-{square_size}px-{self.model_type}.pkl")
+        features, labels = read_from_pickle(self.pickle_path + f"/data-{square_size}px.pkl")
         features = pandas.DataFrame(features, columns=["mean_value", "std_value", "percentile_25", "percentile_75"])
         labels = pandas.Series(labels, name="HS_class")
         X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
@@ -249,7 +249,7 @@ class TifModel:
 
         y_true = y_test
         y_pred = self.model.predict(X_test)
-        plot_confusion_matrix(y_true, y_pred, square_size)
+        plot_confusion_matrix(y_true, y_pred, square_size, self.model_type)
         print(classification_report(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5], zero_division=1))
 
     def predict_value(self, image_path: str, square_size: int = 64) -> str:
