@@ -102,11 +102,12 @@ def plot_confusion_matrix(y_true, y_pred, square_size: int, model_type: str):
     cm = confusion_matrix(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5])
     class_names = ["Class 0", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5"]
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
-    plt.title("Confusion Matrix")
+    plt.title(f"Confusion Matrix ({model_type},  {square_size}px)")
     plt.xlabel("Predicted")
     plt.ylabel("True")
     plt.savefig(f"confusion_matrix-{square_size}px-{model_type}.png", dpi=300)
     plt.show()
+    plt.clf()
 
 
 def save_to_pickle(tif_metrics: np.array, measurements: np.ndarray, pickle_path: str):
