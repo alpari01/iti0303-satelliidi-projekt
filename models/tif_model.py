@@ -158,6 +158,8 @@ class TifModel:
         dataset_size: int - amount of images to convert
         """
         prepared_images = 0
+        read_images = 0
+        checked_images = 0
 
         classes_counter = {}
 
@@ -166,9 +168,10 @@ class TifModel:
 
             image_paths = os.listdir(os.path.join(self.tif_images_root_path, measurement_folder))
             for image_path in image_paths:
-
+                checked_images += 1
                 image_size = get_image_size(self.tif_images_root_path + "/" + measurement_folder + "/" + image_path)
                 if image_size >= max_image_size_mb:
+                    read_images += 1
                     try:
                         measurement = find_hs_class(find_hs_measurement(image_path, self.measurements_root_path))
                         if isinstance(measurement, int):
@@ -188,7 +191,7 @@ class TifModel:
                                 prepared_images += 1
 
                             print(
-                                f"image nr: {prepared_images}",
+                                f"image nr: {prepared_images} - {read_images} - {checked_images}",
                                 f"img size: {round(image_size, 2)} MB,",
                                 f"HS class: {measurement}",
                                 f"image path: {image_path}"
