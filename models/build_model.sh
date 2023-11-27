@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pip install tensorflow scikit-learn tifffile pandas psutil matplotlib seaborn
+pip install scikit-learn tifffile pandas matplotlib seaborn numpy
 
 python_executable="./tif_build_model.py"
 
