@@ -207,6 +207,10 @@ class TifModel:
                         traceback.print_exc()
                         print(f"Could not read image, skipping.\nError: {e}")
 
+        save_to_pickle(np.array(self.tif_metrics), np.array(self.measurements), self.pickle_path + f"/data-{square_size}px.pkl")
+        print(f"Didn't reach {dataset_size}, saving anyway. Total images: {prepared_images}")
+        print("Dataset built and saved!")
+
     def model_build_lr(self) -> None:
         print("\nBuilding Logistic Regression model...")
         model = LogisticRegression(max_iter=1000, random_state=42)
