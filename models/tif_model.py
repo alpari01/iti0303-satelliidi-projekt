@@ -98,7 +98,7 @@ def calculate_image_metrics(image_array: np.ndarray) -> np.ndarray:
     return np.array([mean_value, std_value, percentile_25, percentile_75])
 
 
-def plot_confusion_matrix(y_true, y_pred, square_size: int, model_type: str = "TODO"):
+def plot_confusion_matrix(y_true, y_pred, square_size: int, model_type: str):
     cm = confusion_matrix(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5])
     class_names = ["Class 0", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5"]
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
@@ -131,6 +131,7 @@ class TifModel:
         self.pickle_path = None
         self.tif_metrics = []
         self.measurements = []
+        self.model_type = None
 
     def build_dataset(self, square_size: int, max_image_size_mb: int, dataset_size: int):
         """
@@ -210,29 +211,33 @@ class TifModel:
         print("\nBuilding Logistic Regression model...")
         model = LogisticRegression(max_iter=1000, random_state=42)
         self.model = model
+        self.model_type = "lr"
         print("Successfully built model")
 
     def model_build_rf(self) -> None:
         print("\nBuilding Random Forest model...")
         model = RandomForestClassifier(n_estimators=100, random_state=42)
         self.model = model
+        self.model_type = "rf"
         print("Successfully built model")
 
     def model_build_gb(self) -> None:
         print("\nBuilding Gradient Boosting model...")
         model = GradientBoostingClassifier(n_estimators=100, random_state=42)
         self.model = model
+        self.model_type = "gb"
         print("Successfully built model")
 
     def model_build_knn(self) -> None:
         print("\nBuilding k-Nearest Neighbors model...")
         model = KNeighborsClassifier(n_neighbors=5)
         self.model = model
+        self.model_type = "knn"
         print("Successfully built model")
 
     def model_fit(self, square_size: int) -> None:
         print("\nSplitting dataset into training, testing and validation...")
-        features, labels = read_from_pickle(self.pickle_path + f"/data-{square_size}px.pkl")
+        features, labels = read_from_pickle(self.pickle_path + f"/data-{square_size}px-{self.model_type}.pkl")
         features = pandas.DataFrame(features, columns=["mean_value", "std_value", "percentile_25", "percentile_75"])
         labels = pandas.Series(labels, name="HS_class")
         X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
