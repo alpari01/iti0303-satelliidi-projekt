@@ -98,11 +98,11 @@ def calculate_image_metrics(image_array: np.ndarray) -> np.ndarray:
     return np.array([mean_value, std_value, percentile_25, percentile_75])
 
 
-def plot_confusion_matrix(y_true, y_pred, square_size: int, model_type: str):
+def plot_confusion_matrix(y_true, y_pred, square_size: any, model_type: str):
     cm = confusion_matrix(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5])
     class_names = ["Class 0", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5"]
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
-    plt.title(f"Confusion Matrix ({model_type},  {square_size}px)")
+    plt.title(f"Confusion Matrix ({model_type},  {square_size})")
     plt.xlabel("Predicted")
     plt.ylabel("True")
     plt.savefig(f"confusion_matrix-{square_size}px-{model_type}.png", dpi=300)
@@ -120,7 +120,7 @@ def read_from_pickle(pickle_path: str):
         data = pickle.load(file)
         tif_metrics = data['tif_metrics']
         measurements = data['measurements']
-    return tif_metrics, measurements
+    return tif_metrics.tolist(), measurements.tolist()
 
 
 class TifModel:
@@ -258,6 +258,31 @@ class TifModel:
         y_true = y_test
         y_pred = self.model.predict(X_test)
         plot_confusion_matrix(y_true, y_pred, square_size, self.model_type)
+        print(classification_report(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5], zero_division=1))
+
+    def model_fit_multiple(self, datasets_path: str) -> None:
+        print("\nSplitting dataset into training, testing and validation...")
+
+        dataset_files = os.listdir(datasets_path)
+        features = []
+        labels = []
+        for dataset_file in dataset_files:
+          data = read_from_pickle(datasets_path + "/" + dataset_file)
+          features += data[0]
+          labels += data[1]
+
+        features = pandas.DataFrame(features, columns=["mean_value", "std_value", "percentile_25", "percentile_75"])
+        labels = pandas.Series(labels, name="HS_class")
+        X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+        print("Successfully prepared dataset")
+        print(f'test size={len(X_test)}')
+        print(f'train size={len(X_train)}')
+
+        self.model.fit(X_train, y_train)
+
+        y_true = y_test
+        y_pred = self.model.predict(X_test)
+        plot_confusion_matrix(y_true, y_pred, "32px - 512px", self.model_type)
         print(classification_report(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5], zero_division=1))
 
     def predict_value(self, image_path: str, square_size: int = 64) -> str:
