@@ -67,7 +67,8 @@ if __name__ == '__main__':
 
     model_class = tif_model.TifModel()
     model_class.model_build_rf()
-    model_class.model_fit_multiple(datasets_folder)
+    # model_class.model_fit_multiple(datasets_folder)
+    model_class.model_fit(512, datasets_folder)
     print('...successfully trained model...')
 
     indices = {}
@@ -77,11 +78,12 @@ if __name__ == '__main__':
     # for key, value in indices.items():
     #     print(f'{key}: {value},')
 
-    print('...Creating plot...')
     landmask = np.array(landmask)
     aspect_ratio = landmask.shape[1] / landmask.shape[0]
     fig = plt.figure(figsize=(6 * aspect_ratio, 6))
-    sns.heatmap(landmask, cmap='gray', vmin=0, vmax=1, cbar=False)
+    heatmap = sns.heatmap(landmask, cmap='gray', vmin=0, vmax=1, cbar=False)
+    heatmap.set_xticks([])
+    heatmap.set_yticks([])
 
     for key, value in indices.items():
         square_size = key[1][0] - key[0][0] + 1
@@ -91,9 +93,9 @@ if __name__ == '__main__':
         plt.text(x, y, str(value[0]), color='black', ha='center', va='center', fontsize=fontsize, fontweight='normal')
         colors = {5: '#eb3434', 4: '#eb6834', 3: '#eb9934', 2: '#ebcd34', 1: '#d9eb34', 0: '#83eb34'}
         plt.gca().add_patch(plt.Rectangle((x - square_size // 2, y - square_size // 2), square_size, square_size, linewidth=0.1, edgecolor='white', facecolor=colors[int(value[0])]))
-    print('...HS classes successfully plotted...')
+    print('...HS classes and colors successfully plotted...')
 
-    plt.savefig('plot.png', dpi=4000)
+    plt.savefig('plot.png', dpi=2500, bbox_inches='tight', pad_inches=0)
     plt.show()
     print('...successfully drawn plot.')
 

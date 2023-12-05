@@ -241,9 +241,9 @@ class TifModel:
         self.model_type = "knn"
         print("Successfully built model")
 
-    def model_fit(self, square_size: int) -> None:
+    def model_fit(self, square_size: int, datasets_path: str) -> None:
         print("\nSplitting dataset into training, testing and validation...")
-        features, labels = read_from_pickle(self.pickle_path + f"/data-{square_size}px.pkl")
+        features, labels = read_from_pickle(datasets_path + f"/data-{square_size}px.pkl")
         features = pandas.DataFrame(features, columns=["mean_value", "std_value", "percentile_25", "percentile_75"])
         labels = pandas.Series(labels, name="HS_class")
         X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
