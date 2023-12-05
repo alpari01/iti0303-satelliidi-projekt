@@ -1,4 +1,4 @@
-from osgeo import gdal, osr
+from osgeo import gdal
 import os
 import shutil
 import subprocess
@@ -7,11 +7,12 @@ import subprocess
 def get_landmask_and_error(filein, shapefile):
     """Generates landmask and error binary map by rasterizing the shapefile on the GeoTIFF file."""
     path, filename = os.path.split(filein)
-    product_name = filename[:-5]
+    product_name = filename[:-4]
 
     gdal.AllRegister()
 
-    tif_copy = 'landmask_indexing/temp/' + product_name + '_temp.tiff'
+    tif_copy = 'landmask_indexing/temp/' + product_name + '_temp.tif'
+
     shutil.copy2(filein, tif_copy)
 
     cmd = 'gdal_rasterize -burn 0 ' + shapefile + ' ' + tif_copy
