@@ -46,10 +46,8 @@ def find_hs_measurement(image_path: str, measurements_root_path: str) -> np.floa
       - temp/
       - tudengid_imgs/
     """
-    # /content/drive/MyDrive/TalTech/Tellimus/measurements
     time, code = get_time_and_code(image_path)
     csv_data = pandas.read_csv(measurements_root_path + '/format_' + code + '.csv')
-    # csv_data = pandas.read_csv(root_path + '/measurements/format_' + code + '.csv')
     csv_data['Format time (UTC)'] = pandas.to_datetime(csv_data['Format time (UTC)'])
     closest_time_index = (csv_data['Format time (UTC)'] - time).abs().idxmin()
     hs = csv_data.loc[closest_time_index, 'HS']
@@ -284,14 +282,3 @@ class TifModel:
         y_pred = self.model.predict(X_test)
         plot_confusion_matrix(y_true, y_pred, "32px - 512px", self.model_type)
         print(classification_report(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5], zero_division=1))
-
-    def predict_value(self, image_path: str, square_size: int = 64) -> str:
-        hs_classes_dict = {0: "0-0.5m", 1: "0.51-1m", 2: "1.01-1.5m", 3: "1.51-2m", 4: "2.01-2.5m", 5: "2.51+m"}
-        print(f"\nPredicting HS value based on image..., square_size={square_size}")
-        x = read_image(image_path, square_size)
-        x = x.reshape(1, 64, 64, 3)
-        prediction = self.model.predict(x)
-        print(f"Actual HS value is: {find_hs_measurement(image_path, self.measurements_root_path)}")
-        print(f"Prediction 6 classes probability: {prediction}")
-        print(f"HS classes dict: {hs_classes_dict}")
-        print(f"Predicted HS class: {np.argmax(prediction)} ({hs_classes_dict[np.argmax(prediction)]})")
