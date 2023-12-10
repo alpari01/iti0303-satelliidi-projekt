@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 
 
-def get_time_and_code(image_path: str):
+def get_time_and_code(image_path: str) -> tuple:
     path, filename = os.path.split(image_path)
     time = filename.split('_')[3]
     code = filename.split('_')[0]
@@ -96,7 +96,7 @@ def calculate_image_metrics(image_array: np.ndarray) -> np.ndarray:
     return np.array([mean_value, std_value, percentile_25, percentile_75])
 
 
-def plot_confusion_matrix(y_true, y_pred, square_size: any, model_type: str):
+def plot_confusion_matrix(y_true, y_pred, square_size: any, model_type: str) -> None:
     cm = confusion_matrix(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5])
     class_names = ["Class 0", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5"]
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
@@ -108,12 +108,12 @@ def plot_confusion_matrix(y_true, y_pred, square_size: any, model_type: str):
     plt.clf()
 
 
-def save_to_pickle(tif_metrics: np.array, measurements: np.ndarray, pickle_path: str):
+def save_to_pickle(tif_metrics: np.array, measurements: np.ndarray, pickle_path: str) -> None:
     with open(pickle_path, "wb") as file:
         pickle.dump({'tif_metrics': tif_metrics, 'measurements': measurements}, file)
 
 
-def read_from_pickle(pickle_path: str):
+def read_from_pickle(pickle_path: str) -> tuple:
     with open(pickle_path, "rb") as file:
         data = pickle.load(file)
         tif_metrics = data['tif_metrics']
@@ -134,8 +134,10 @@ class TifModel:
 
     def build_dataset(self, square_size: int, max_image_size_mb: int, dataset_size: int):
         """
-        This function builds a dataset for a CNN model. It reads .tif images and their measurements,
+        This function builds a dataset for a model. It reads .tif images and their measurements,
         then converts each image to np.ndarray and saves the data class variables.
+
+        After dataset is built, this function will save it to .pkl file.
 
         tif_images_root_path/
             - gof_gcp_2/
@@ -154,7 +156,7 @@ class TifModel:
 
         square size: int - image size to cut (32px, 64px, 128px, 256px, or 512px)
         max_image_size_mb: int - all images below this size (in MB) are discarded
-        dataset_size: int - amount of images to convert
+        dataset_size: int - amount of images to include to dataset
         """
         prepared_images = 0
         read_images = 0
@@ -198,7 +200,7 @@ class TifModel:
 
                             print(classes_counter)
 
-                            sys.stdout.flush()
+                            sys.stdout.flush()  # this is needed for ai-lab to display prints during runtime
 
                         if prepared_images == dataset_size:
                             save_to_pickle(np.array(self.tif_metrics), np.array(self.measurements), self.pickle_path + f"/data-{square_size}px.pkl")
@@ -242,6 +244,11 @@ class TifModel:
         print("Successfully built model")
 
     def model_fit(self, square_size: int, datasets_path: str) -> None:
+        """
+        This method fits model with dataset of images of one particular square size
+        (e.g. dataset that only contains images of 32x32).
+        Method finds dataset file automatically based on square_size.
+        """
         print("\nSplitting dataset into training, testing and validation...")
         features, labels = read_from_pickle(datasets_path + f"/data-{square_size}px.pkl")
         features = pandas.DataFrame(features, columns=["mean_value", "std_value", "percentile_25", "percentile_75"])
@@ -259,6 +266,9 @@ class TifModel:
         print(classification_report(y_true, y_pred, labels=[0, 1, 2, 3, 4, 5], zero_division=1))
 
     def model_fit_multiple(self, datasets_path: str) -> None:
+        """
+        Same method as model_fit, but this method fits model with ALL datasets it finds in the path.
+        """
         print("\nSplitting dataset into training, testing and validation...")
 
         dataset_files = os.listdir(datasets_path)
