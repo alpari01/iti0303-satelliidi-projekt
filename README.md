@@ -35,23 +35,83 @@ pip install gdal numpy matplotlib seaborn
 
 2) Use this command to install directly from `.whl` file instead.
 ```
-pip install /path/to/downloaded_file
+pip install /path/to/downloaded_file.whl
 ```
 
 ## Usage
-### `read_geotiff.py`
-The `read_geotiff.py` script provides functions for working with GeoTIFF files. It includes the following functions:
-- `get_landmask_and_error()`: Extracts a landmask from a GeoTIFF file based on a provided shapefile and returns it.
-- `get_raster_band()`: Reads a raster band from a GeoTIFF file and returns it as a NumPy array.
+### Build dataset
+**Create a new model object**
+```
+model = TifModel()
+```
+**Configure .tif images path.** 
+```
+model.tif_images_root_path = "/your/path/to/tif/images"
+```
+This path should contain all your .tif images and must have the following structure:
+- **root**
+  - **gof_gcp_2**
+    - *tif_image*
+    - *tif_image*
+    - ...
+    - *tif_image*
+  - **knolls_gcp_2**
+    - ... 
+  - **nbp_gcp_2**
+    - ... 
+  - **selka_gcp_2**
+    - ...  
 
-### `landmask_indexing.py`
-The `landmask_indexing.py` script is designed for landmask indexing. It includes the following function:
-- `get_indices()`: Generates indices for landmask squares of a specified size and fills a list with square coordinates. The result is a list of top-left and bottom-right coordinates for landmask squares.
+**Configure measurements root path.** 
+```
+model.measurements_root_path = "/your/path/to/tif/measurements"
+```
+This path should contain measurements for your .tif images and must have the following structure:
+- **root**
+  - **format_gof.csv**
+  - **format_knolls.csv**
+  - **format_nbp.csv**
+  - **format_selka.csv**
+ 
+**Configure pickle path.** 
+```
+model.pickle_path = "/your/path/to/save/pickle/file/to"
+```
+This is path where dataset pickle file will be saved to.
 
-### `grid_plot.py`
-The `grid_plot.py` script is responsible for creating visual representations of the landmask squares on top of GeoTIFF images. It includes the following functions:
-- `draw_grid()`: Draws landmask squares on the input data, providing a visual representation of the indexed squares.
-- `transfer_indices()`: Transfers indices from the landmask to a target dataset, allowing for visual representation and analysis.
+**Build dataset**
+```
+model.build_dataset(64, 40, 1200)
+```
+This method will read all images from _tif_images_root_path_, crop them to size _64x64_ pixels, discarding any images below _40MB_ and save built dataset to _pickle_path_.
+
+This dataset will have features **std, mean, percentile_25, percentile_75** and labels **HS class**.
+
+HS classes definitions:
+- 0: hs <= 0.5
+- 1: 0.5 < hs <= 1.0
+- 2: 1.0 < hs <= 1.5
+- 3: 1.5 < hs <= 2.0
+- 4: 2.0 < hs <= 2.5
+- 5: 2.5 < hs
+
+This dataset will be balanced and have ~200 images per each HS class.
+
+You will see created dataset pickle file with name _data-64px.pkl_ appear in your _pickle_path_ directory.
+
+### Build and fit model
+We found that with the current solution RandomForest model provides the most accurate results.
+
+You can build a RandomForest model like that
+```
+model.model_build_rf()
+```
+
+Then you can fit the model. This methdod will automatically look up for pickle file with name _data-64px.pkl_ and use it for model fitting.
+```
+model.model_fit(64)
+```
+
 
 ## Customization
 
