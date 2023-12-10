@@ -120,3 +120,8 @@ In `landmask_indexing.py` and `grid_plot.py`, you can customize the following pa
   - `max_square`: Set the maximum square size for indexing.
   - `min_square`: Set the minimum square size for indexing.
   - `filling`: Control the filling criteria for indexing the landmask.
+
+## Our suggestions on model improvements
+- Problem with bigger images. On bigger satellite images there are not squares of one size, there are squares of sizes from 32 to 512px. We assume, that when the model sees, a data of .tif square, for example of size 512, then it doesn’t actually know what size it is (since it only sees its calculated std, mean, percentile_25 and percentile_75 values). So when we ask the model to predict the result based on all the squares together 32, 64, 128, 256 and 512, then for 512 it will predict good results on a dataset of 512, but for others it will provide poor results.
+- Possible solutions
+  - Try to add square size parameter to features set, so it is like so **std, mean, percentile_25, percentile_75, square_size**.
