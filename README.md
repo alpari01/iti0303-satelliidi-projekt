@@ -111,6 +111,7 @@ Then you can fit the model. This methdod will automatically look up for pickle f
 ```
 model.model_fit(64)
 ```
+Model confusion matrix will be created in the same directory you launch script from and will have name _confusion-matrix-64px.png_.
 
 
 ## Customization
