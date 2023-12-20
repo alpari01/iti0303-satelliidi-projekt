@@ -1,117 +1,52 @@
-# Landmask Indexing Algorithm
+# Landmask Indexing and Classification
 
 
 ## Description
-This repository contains a set of Python scripts for geospatial data processing, specifically designed for working with GeoTIFF files. The code allows you to analyze, manipulate, and visualize geospatial data with a focus on landmask extraction, indexing, and grid plotting.
-
-
-## Table of Contents
-- [Prerequisites](#prerequisites)
+This repository contains a Python implementation of an algorithm designed for landmask indexing. The algorithm processes satellite imagery in GeoTIFF format and identifies specific regions of interest based on predefined criteria. The identified regions are then classified into different classes using a machine learning model trained on relevant datasets.## Table of Contents
+- [Components](#components)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Customization](#customization)
 
+## Components
+### 1. Machine Learning Module (`models/tif_model.py`):
+- Implements a machine learning model (Random Forest in this case) to classify image regions.
+- Reads and preprocesses datasets containing labeled examples for training.
+- Trains the model and evaluates its performance on test data.
+- Provides functionality for predicting classes for new data.
 
-## Prerequisites
-- [Python](https://www.python.org/): This project is written in Python 3.7+.
-- [GDAL](https://gdal.org/): The Geospatial Data Abstraction Library is used to handle GeoTIFF files.
-- [Matplotlib](https://matplotlib.org/): This library is used for creating visualizations.
-- [Seaborn](https://seaborn.pydata.org/): Seaborn complements Matplotlib for creating attractive statistical graphics.
-- [NumPy](https://numpy.org/): NumPy is used for efficient numerical operations.
-
+### 2. Indexing Module (`/landmask_indexing/landmask_indexing.py`):
+- Reads and processes GeoTIFF satellite imagery.
+- Applies a predefined algorithm to identify regions of interest (landmask) within the images.
+- Utilizes a machine learning model to classify the identified regions into different classes.
+- Generates an output plot overlaying the original landmask with the identified classes.
 
 ## Getting Started
-1. Clone the repository to your local machine. 
-```
-git clone https://github.com/alpari01/iti0303-satelliidi-projekt.git
-```
-2. Install the required dependencies. You can use pip to install the necessary packages.
-```
-pip install gdal numpy matplotlib seaborn
-```
+1. Clone the repository `git clone https://github.com/alpari01/iti0303-satelliidi-projekt.git`
 
-### Troubleshooting GDAL installation
-1) Go to https://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal and download `.whl` file that is compatible with your operating system and python version.
+2. Install dependencies `pip install numpy matplotlib seaborn pandas tifffile scikit-learn`
 
-2) Use this command to install directly from `.whl` file instead.
-```
-pip install /path/to/downloaded_file.whl
-```
+### GDAL installation
+1) Go [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal) and download `.whl` file.
 
-## Usage
-### Build dataset
-**Create a new model object**
-```
-model = TifModel()
-```
-**Configure .tif images path.** 
-```
-model.tif_images_root_path = "/your/path/to/tif/images"
-```
-This path should contain all your .tif images and must have the following structure:
-- **root**
-  - **gof_gcp_2**
-    - *tif_image*
-    - *tif_image*
-    - ...
-    - *tif_image*
-  - **knolls_gcp_2**
-    - ... 
-  - **nbp_gcp_2**
-    - ... 
-  - **selka_gcp_2**
-    - ...  
+2) Install it `pip install /path/to/downloaded_file.whl`
 
-**Configure measurements root path.** 
+## Usage Examples
+### 1. Machine Learning Module
 ```
-model.measurements_root_path = "/your/path/to/tif/measurements"
-```
-This path should contain measurements for your .tif images and must have the following structure:
-- **root**
-  - **format_gof.csv**
-  - **format_knolls.csv**
-  - **format_nbp.csv**
-  - **format_selka.csv**
- 
-**Configure pickle path.** 
-```
-model.pickle_path = "/your/path/to/save/pickle/file/to"
-```
-This is path where dataset pickle file will be saved to.
-
-**Build dataset**
-```
+model.tif_images_path = "/illukas/data/projects/iti_wave_2023/tif_images"
+model.measurements_path = "/illukas/data/projects/iti_wave_2023/measurements"
+model.pickle_path = "/illukas/data/projects/iti_wave_2023/iti0303-satelliidi-projekt/datasets"
 model.build_dataset(64, 40, 1200)
-```
-This method will read all images from _tif_images_root_path_, crop them to size _64x64_ pixels, discarding any images below _40MB_ and save built dataset to _pickle_path_.
-
-This dataset will have features **std, mean, percentile_25, percentile_75** and labels **HS class**.
-
-HS classes definitions:
-- 0: hs <= 0.5
-- 1: 0.5 < hs <= 1.0
-- 2: 1.0 < hs <= 1.5
-- 3: 1.5 < hs <= 2.0
-- 4: 2.0 < hs <= 2.5
-- 5: 2.5 < hs
-
-This dataset will be balanced and have ~200 images per each HS class.
-
-You will see created dataset pickle file with name _data-64px.pkl_ appear in your _pickle_path_ directory.
-
-### Build and fit model
-We found that with the current solution RandomForest model provides the most accurate results.
-
-You can build a RandomForest model like that
-```
 model.model_build_rf()
-```
-
-Then you can fit the model. This methdod will automatically look up for pickle file with name _data-64px.pkl_ and use it for model fitting.
-```
 model.model_fit(64)
 ```
-Model confusion matrix will be created in the same directory you launch script from and will have name _confusion-matrix-64px.png_.
+### 2. Indexing Module
+```
+tif_file = r'landmask_indexing/tiff/S1A_IW_GRDH_1SDV_20221027T160500_20221027T160525_045630_0574C2_211B_Cal_Spk_TC.tif'
+shapefile = r'landmask_indexing/tiff/gshhg-shp-2.3.7/GSHHS_shp/f/GSHHS_f_L1.shp'
+datasets_folder = r'/models/datasets/'
+```
 
 
 ## Customization
