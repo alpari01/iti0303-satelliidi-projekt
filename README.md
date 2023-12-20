@@ -51,7 +51,7 @@ datasets_folder = r'/models/datasets/'
 
 ## Customization
 
-In `landmask_indexing.py` and `grid_plot.py`, you can customize the following parameters:
+In `landmask_indexing.py` you can customize the following parameters:
   - `max_square`: Set the maximum square size for indexing.
   - `min_square`: Set the minimum square size for indexing.
   - `filling`: Control the filling criteria for indexing the landmask.
