@@ -31,7 +31,7 @@ This repository contains a Python implementation of an algorithm designed for la
 
 2) Install it `pip install /path/to/downloaded_file.whl`
 
-## Usage Examples
+## Usage
 ### 1. Machine Learning Module
 ```
 model.tif_images_path = "/illukas/data/projects/iti_wave_2023/tif_images"
