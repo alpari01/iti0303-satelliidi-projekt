@@ -9,13 +9,13 @@ This repository contains a Python implementation of an algorithm designed for la
 - [Customization](#customization)
 
 ## Components
-### 1. Machine Learning Module (`models/tif_model.py`):
+### 1. Machine Learning Module (`tif_model.py`):
 - Implements a machine learning model (Random Forest in this case) to classify image regions.
 - Reads and preprocesses datasets containing labeled examples for training.
 - Trains the model and evaluates its performance on test data.
 - Provides functionality for predicting classes for new data.
 
-### 2. Indexing Module (`/landmask_indexing/landmask_indexing.py`):
+### 2. Indexing Module (`landmask_indexing.py`):
 - Reads and processes GeoTIFF satellite imagery.
 - Applies a predefined algorithm to identify regions of interest (landmask) within the images.
 - Utilizes a machine learning model to classify the identified regions into different classes.
