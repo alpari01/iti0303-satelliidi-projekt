@@ -2,7 +2,9 @@
 
 
 ## Description
-This repository contains a Python implementation of an algorithm designed for landmask indexing. The algorithm processes satellite imagery in GeoTIFF format and identifies specific regions of interest based on predefined criteria. The identified regions are then classified into different classes using a machine learning model trained on relevant datasets.## Table of Contents
+This repository contains a Python implementation of an algorithm designed for landmask indexing. The algorithm processes satellite imagery in GeoTIFF format and identifies specific regions of interest based on predefined criteria. The identified regions are then classified into different classes using a machine learning model trained on relevant datasets.
+
+## Table of Contents
 - [Components](#components)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
